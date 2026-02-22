@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <a href="admin-orders.html"
+   style="
+     display:inline-block;
+     margin:16px;
+     padding:10px 16px;
+     background:#3498db;
+     color:white;
+     text-decoration:none;
+     border-radius:8px;
+     font-weight:bold;
+   ">
+📦 ดูออเดอร์ที่เข้า
+</a>
+  <meta charset="UTF-8">
+  <title>Admin – จัดการเมนู</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f4f4f4;
+    }
+    header {
+      background: #e21b70;
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .add-form {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr auto;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .add-form input, .add-form button {
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .add-form button {
+      background: #1fbf6c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .food-item {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      overflow: hidden;
+    }
+    .food-item img {
+      width: 150px;
+      height: 120px;
+      object-fit: cover;
+    }
+    .food-info {
+      flex: 1;
+      padding: 12px;
+    }
+    .actions {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toggle {
+      background: #f1c40f;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .delete {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>🍳 Admin – จัดการเมนูอาหาร</header>
+
+<div class="container">
+  <h2>เพิ่มเมนูใหม่</h2>
+
+  <div class="add-form">
+    <input id="foodName" placeholder="ชื่ออาหาร">
+    <input id="foodPrice" type="number" placeholder="ราคา">
+    <input id="foodImage" placeholder="ลิงก์รูป">
+    <button onclick="addFood()">เพิ่ม</button>
+  </div>
+
+  <h2>รายการเมนู</h2>
+  <div id="foodList"></div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/admin/foods';
+
+function loadFoods() {
+  fetch(API)
+    .then(res => res.json())
+    .then(data => {
+      foodList.innerHTML = '';
+      data.forEach(f => {
+        foodList.innerHTML += `
+          <div class="food-item">
+            <img src="${f.image}">
+            <div class="food-info">
+              <h3>${f.name}</h3>
+              <div>${f.price} บาท</div>
+              <div>สถานะ: ${f.available ? '🟢 ขายอยู่' : '🔴 ปิด'}</div>
+            </div>
+            <div class="actions">
+              <button class="toggle"
+                onclick="toggleFood(${f.id}, ${f.available ? 0 : 1})">
+                ${f.available ? 'ปิดเมนู' : 'เปิดเมนู'}
+              </button>
+              <button class="delete"
+                onclick="deleteFood(${f.id})">
+                ลบ
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    });
+}
+
+function addFood() {
+  const nameInput = document.getElementById('foodName');
+  const priceInput = document.getElementById('foodPrice');
+  const imageInput = document.getElementById('foodImage');
+
+  if (!nameInput.value || !priceInput.value || !imageInput.value) {
+    alert('กรอกข้อมูลให้ครบ');
+    return;
+  }
+
+  fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: nameInput.value,
+      price: priceInput.value,
+      image: imageInput.value
+    })
+  }).then(() => {
+    nameInput.value = '';
+    priceInput.value = '';
+    imageInput.value = '';
+    loadFoods();
+  });
+}
+
+function deleteFood(id) {
+  if (!confirm('ลบเมนูนี้?')) return;
+  fetch(API + '/' + id, { method: 'DELETE' })
+    .then(loadFoods);
+}
+
+function toggleFood(id, available) {
+  fetch(API + '/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ available })
+  }).then(loadFoods);
+}
+
+loadFoods();
+</script>
+
+</body>
+</html>

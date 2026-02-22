@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ออเดอร์ของคุณ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="header">
+  <h1>ออเดอร์ของคุณ 🧾</h1>
+</header>
+
+<main id="orderList" class="order-list"></main>
+
+<div class="order-summary">
+  รวมทั้งหมด ฿<span id="totalPrice">0</span>
+</div>
+
+<div class="order-actions">
+  <button class="back-btn" onclick="goBack()">⬅ กลับ</button>
+  <button class="confirm-btn" onclick="confirmOrder()">สั่งอาหาร</button>
+</div>
+
+<script src="order.js"></script>
+</body>
+</html>

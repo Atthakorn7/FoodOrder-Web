@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>กำลังเตรียมอาหาร</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f6f6f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .done {
+      color: #1fbf6c;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2 id="statusText">⏳ กำลังเตรียมอาหาร...</h2>
+  <p>กรุณารอสักครู่</p>
+</div>
+
+<script>
+const orderId = localStorage.getItem('orderId');
+
+if (!orderId) {
+  document.getElementById('statusText').innerText = 'ไม่พบออเดอร์';
+}
+
+function checkStatus() {
+  fetch(`http://localhost:3000/orders/${orderId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'done') {
+        document.getElementById('statusText').innerHTML =
+          '✅ อาหารเสร็จแล้ว!<br>เชิญรับอาหารได้เลย';
+      }
+    });
+}
+
+// 🔁 เช็กทุก 3 วิ
+setInterval(checkStatus, 3000);
+</script>
+
+</body>
+</html>
+
+
+
+

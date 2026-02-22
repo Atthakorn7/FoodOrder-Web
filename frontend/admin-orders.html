@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – รายการออเดอร์</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #e21b70;
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .status {
+      color: #e21b70;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #ddd;
+      font-size: 14px;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .prepare {
+      background: #f1c40f;
+    }
+
+    .done {
+      background: #1fbf6c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<header>📦 Admin – รายการออเดอร์</header>
+
+<div class="container">
+  <div id="orderList"></div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/admin/orders';
+const orderList = document.getElementById('orderList');
+
+function loadOrders() {
+  fetch(API)
+    .then(res => res.json())
+    .then(data => {
+      orderList.innerHTML = '';
+
+      if (data.length === 0) {
+        orderList.innerHTML = '<p>ยังไม่มีออเดอร์</p>';
+        return;
+      }
+
+      data.forEach(order => {
+        const div = document.createElement('div');
+        div.className = 'order-card';
+
+        div.innerHTML = `
+          <div class="order-header">
+            <div>ออเดอร์ #${order.id}</div>
+            <div class="status">${order.status}</div>
+          </div>
+
+          ${order.items.map(item => `
+            <div class="item">
+              <div>${item.name}</div>
+              <div>x${item.quantity}</div>
+            </div>
+          `).join('')}
+
+          <div class="actions">
+            <button class="prepare" onclick="updateStatus(${order.id}, 'preparing')">
+              กำลังทำ
+            </button>
+            <button class="done" onclick="updateStatus(${order.id}, 'done')">
+              เสร็จแล้ว
+            </button>
+          </div>
+        `;
+
+        orderList.appendChild(div);
+      });
+    });
+}
+
+function updateStatus(id, status) {
+  fetch('http://localhost:3000/admin/orders/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  }).then(loadOrders);
+}
+
+// โหลดทุก 3 วิ (เหมือน realtime)
+setInterval(loadOrders, 3000);
+loadOrders();
+</script>
+
+</body>
+</html>
